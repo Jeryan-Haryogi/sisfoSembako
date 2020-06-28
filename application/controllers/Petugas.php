@@ -36,18 +36,63 @@ class Petugas extends CI_Controller {
 		$data['count'] = $this->db->query('SELECT SUM(stok) FROM barang_masuk ')->result_array();
 		$data['count2'] = $this->db->query('SELECT SUM(harga) FROM barang_masuk ')->result_array();
 		$data['count_stok'] = $this->db->query("SELECT SUM(stok_terjual) FROM barang_keluar")->result_array();
+		$data['count_hargaa'] = $this->db->query("SELECT SUM(harga_terjual) FROM tbl_pesanan")->result_array();
+		$data['count_stokk'] = $this->db->query("SELECT SUM(stok_terjual) FROM tbl_pesanan")->result_array();
 		$data['count_harga'] = $this->db->query("SELECT SUM(harga_terjual) FROM barang_keluar")->result_array();
+
 		$data['title'] = 'Data Barang';
 		$data['jmlhbrangkeluar'] = $this->db->query('SELECT COUNT(id_barang) FROM barang_keluar')->result_array();
 		$data['jmlhbrangmsk'] =  $this->db->query('SELECT COUNT(id_barang) FROM barang_masuk')->result_array();
+
+		$data['keluar'] = $this->Petugas_model->join_keluar();
 		$data['barang'] = $this->Petugas_model->join_masuk();
-		$data['barang2'] = $this->Petugas_model->join_keluar();
+		$data['barang2'] = $this->db->get('tbl_pesanan')->result_array();
 		$this->load->view('petugas/layout/header', $data);
 		$this->load->view('petugas/layout/nav');
 		$this->load->view('petugas/layout/sidebar');
 		$this->load->view('petugas/pages/barang',$data);
 		$this->load->view('petugas/layout/setting');
 		$this->load->view('petugas/layout/footer');		
+	}
+	public function update_pesanan($id)
+	{	
+		$this->form_validation->set_rules('nama_penerima', 'Nama Penerima', 'required');
+		$this->form_validation->set_rules('kode', 'Kode Transaksi', 'required');
+		$this->form_validation->set_rules('stok_terjual', 'Stok Terjual', 'required');
+		$this->form_validation->set_rules('harga', 'hatga Terjual', 'required');
+		if ($this->form_validation->run() == TRUE) {
+			$data = [
+				'nama_penerima' => $this->input->post('nama_penerima', TRUE),
+				'kode_transaksi' => $this->input->post('kode', TRUE ),
+				'stok_terjual' => $this->input->post('stok_terjual', TRUE),
+				'harga_terjual' => $this->input->post('harga', TRUE)
+			];
+			$this->db->set($data);
+			$this->db->where('id', $id);
+			$this->db->update('tbl_pesanan');
+			$this->session->set_flashdata('flash', 'Data Berhasil Diubah');
+			redirect('petugas/barang');
+		}
+
+		$data['pesanan'] = $this->db->get_where('tbl_pesanan', ['id' => $id])->result_array();
+			$data['csrf'] = array(
+			        'name' => $this->security->get_csrf_token_name(),
+			        'hash' => $this->security->get_csrf_hash()
+				);
+		$data['barang_masuk'] = $this->Petugas_model->barang();
+		$data['title'] = 'Input barang Masuk';
+		$this->load->view('petugas/layout/header', $data);
+		$this->load->view('petugas/layout/nav');
+		$this->load->view('petugas/layout/sidebar');
+		$this->load->view('petugas/input/update_pesanan',$data);
+		$this->load->view('petugas/layout/setting');
+		$this->load->view('petugas/layout/footer');	
+	}
+	public function hapus_pesanan($id)
+	{	
+		$this->db->delete('tbl_pesanan', ['id' => $id]);
+		$this->session->set_flashdata('flash', 'Data Berhasil Dihapus');
+		redirect('petugas/barang');
 	}
 	public function input_barang()
 	{	
@@ -154,7 +199,7 @@ class Petugas extends CI_Controller {
 			        'name' => $this->security->get_csrf_token_name(),
 			        'hash' => $this->security->get_csrf_hash()
 				);
-		$data['barang_masuk'] = $this->Petugas_model->barang();
+		$data['barang_masuk'] = $this->db->get_where('barang_masuk', ['id_brng_masuk'=> $id])->result_array();
 		$data['title'] = 'Update barang Masuk';
 		$this->load->view('petugas/layout/header', $data);
 		$this->load->view('petugas/layout/nav');
@@ -167,7 +212,7 @@ class Petugas extends CI_Controller {
 	}
 	public function update_barang_keluar($id)
 	{
-		$this->form_validation->set_rules('nama_penerima', 'Nama Penerima', 'required');
+
 		$this->form_validation->set_rules('stok_keluar', 'Stok Barang Keluar', 'required');
 		$this->form_validation->set_rules('harga_keluar', 'Harga Barang Keluar', 'required');
 		if ($this->form_validation->run() == TRUE) {
@@ -181,7 +226,7 @@ class Petugas extends CI_Controller {
 			        'hash' => $this->security->get_csrf_hash()
 				);
 		$data['barang_masuk'] = $this->Petugas_model->barang();
-		$data['title'] = 'Update barang Masuk';
+		$data['title'] = 'Update barang Keluar';
 		$this->load->view('petugas/layout/header', $data);
 		$this->load->view('petugas/layout/nav');
 		$this->load->view('petugas/layout/sidebar');
@@ -244,6 +289,7 @@ class Petugas extends CI_Controller {
 				$html .= "<h2  style='margin-top: -200px;'><b>Laporan Barang</b></h2>";
 
 				$html .= "<hr>";
+				$html .= "<h3>Barang Masuk</h3>";
 		$html .= "<table border'1' cellpadding='10' cellspacing='0' style='width:100%; '>";
 		$html .= "<thead>
 	  		<tr>
@@ -259,9 +305,9 @@ class Petugas extends CI_Controller {
 		$html .= "
 			<th></th>
 			<th> Jumlah Barang Masuk : ".$jmlhbrangmsk[0]['COUNT(id_barang)']."</th>";
-			"<th></th>
-			<td ><b>Jumlah Stok : ".$count[0]['SUM(stok)']."</b></td>";
-            $html .=   "<td ><b>Harga Masuk : Rp. ".$count2[0]['SUM(harga)']."</b></td>";
+            $html .=   "<th></th>";
+            $html .= "<th> Jumlah Stok Masuk : ".$count[0]['SUM(stok)']."</th>";
+            $html .="<td ><b>Harga Masuk : Rp. ".number_format($count2[0]['SUM(harga)'],0,',','.')."</b></td>";
 		$html .= "</tr>";	  
 		$html .= "</tfoot>";	  	
 			
@@ -273,7 +319,7 @@ class Petugas extends CI_Controller {
 	  	 	$html .= "<td>".$user['nama_barang']."</td>";
 	  	 	$html .= "<td>".$user['kode_barang']."</td>";
 	  	 	$html .= "<td>".$user['stok']."</td>";
-	  	 	$html .= "<td> Rp.".$user['harga']."</td>";
+	  	 	$html .= "<td> Rp.".number_format($user['harga'],0,',','.')."</td>";
 
 
 	  	 	$html .= "</tr>";
@@ -281,11 +327,12 @@ class Petugas extends CI_Controller {
 	  	 }
 	  	$html .= "</tbody>";
 	  	$html .= "</table>";
+
+				$html .= "<h3>Barang Keluar</h3>";
 	  	$html .= "<table border'1' cellpadding='10' cellspacing='0' style='width:100%; '>";
 		$html .= "<thead>
 	  		<tr>
 	  		<th>No</th>
-            <th>Nama Penerima</th>
             <th>Nama Barang</th>
              <th>Kode Barang</th>
              <th>Stok Keluar</th>
@@ -295,12 +342,11 @@ class Petugas extends CI_Controller {
 	  	$html .= "<tfoot>";
 	  	$html .= "<tr>";	  	
 		$html .= "
-			<th></th>
 			<th></th>";
 		$html .=  "<td ><b>Jumlah Barang Keluar : ".$jmlhbrangkeluar[0]['COUNT(id_barang)']."</b></td>";
           $html .=  " 
 			<th></th><td ><b>Jumlah Stok Keluar : ".$count_stok[0]['SUM(stok_terjual)']."</b></td>";
-            $html .=   "<td ><b>Harga Keluar : Rp. ".$count_harga[0]['SUM(harga_terjual)']."</b></td>";
+            $html .=   "<td ><b>Harga Keluar : Rp. ".number_format($count_harga[0]['SUM(harga_terjual)'],0,',','.')."</b></td>";
 		$html .= "</tr>";	  
 		$html .= "</tfoot>";	  	
 			
@@ -309,11 +355,10 @@ class Petugas extends CI_Controller {
 	  	 foreach($barang_keluar as $user2) {
 	  	 	$html .= "<tr>";
 	  	 	$html .= "<td>".$no."</td>";
-	  	 	$html .= "<td>".$user2['nama_penerima']."</td>";
 	  	 	$html .= "<td>".$user2['nama_barang']."</td>";
 	  	 	$html .= "<td>".$user2['kode_barang']."</td>";
 	  	 	$html .= "<td>".$user2['stok_terjual']."</td>";
-	  	 	$html .= "<td> Rp.".$user2['harga_terjual']."</td>";
+	  	 	$html .= "<td> Rp.".number_format($user2['harga_terjual'],0,',','.')."</td>";
 
 
 	  	 	$html .= "</tr>";
@@ -322,6 +367,7 @@ class Petugas extends CI_Controller {
 	  	$html .= "</tbody>";
 	  	$html .= "</table>";
 
+				$html .= "<h3>Selisih Barang</h3>";
 	  	$html .= "<table border'1' cellpadding='10' cellspacing='0' style='width:100%;'  style='margin-top: 20px'>";
 		$html .= "<thead>
 	  		<tr>
@@ -340,7 +386,7 @@ class Petugas extends CI_Controller {
 			<th></th>
 
             <td colspan='2'><b>Selisih Stok : ".$jm."</b></td>";
-            $html .=   "<td colspan='2'><b>Selisih Harga : Rp. ".$sf."</b></td>";
+            $html .=   "<td colspan='2'><b>Selisih Harga : Rp. ".number_format($sf,0,',','.')."</b></td>";
 		$html .= "</tr>";	  
 		$html .= "</tfoot>";	  	
 			
@@ -350,8 +396,8 @@ class Petugas extends CI_Controller {
 	  	 	$html .= "<td>".$no."</td>";
 	  	 	$html .= "<td>".$count[0]['SUM(stok)']."</td>";
 	  	 	$html .= "<td>".$count_stok[0]['SUM(stok_terjual)']."</td>";
-	  	 	$html .= "<td> Rp.".$count2[0]['SUM(harga)']."</td>";
-	  	 	$html .= "<td> Rp.".$count_harga[0]['SUM(harga_terjual)']."</td>";
+	  	 	$html .= "<td> Rp.".number_format($count2[0]['SUM(harga)'],0,',','.')."</td>";
+	  	 	$html .= "<td> Rp.".number_format($count_harga[0]['SUM(harga_terjual)'],0,',','.')."</td>";
 
 
 	  	 	$html .= "</tr>";

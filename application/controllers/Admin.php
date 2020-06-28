@@ -19,7 +19,7 @@ class Admin extends CI_Controller {
 
 	}
 	public function index()
-	{
+	{	
 		
 		
 		$data['title'] = 'Dahsboard';
@@ -66,8 +66,10 @@ class Admin extends CI_Controller {
 		$data['count'] = $this->Admin_model->count_barang();
 		$data['count2'] = $this->db->query('SELECT SUM(harga) FROM barang_masuk ')->result_array();
 		$data['barang'] = $this->Admin_model->select_barang();
-		$data['count_stok'] = $this->db->query("SELECT SUM(stok_terjual) FROM barang_keluar")->result_array();
-		$data['count_harga'] = $this->db->query("SELECT SUM(harga_terjual) FROM barang_keluar")->result_array();
+		$data['count_stok'] = $this->db->query("SELECT SUM(stok_terjual) FROM tbl_pesanan")->result_array();
+		$data['count_stok2'] = $this->db->query("SELECT SUM(stok_terjual) FROM barang_keluar")->result_array();
+		$data['count_harga'] = $this->db->query("SELECT SUM(harga_terjual) FROM tbl_pesanan")->result_array();
+		$data['count_harga2'] = $this->db->query("SELECT SUM(harga_terjual) FROM barang_keluar")->result_array();
 		$data['jmlhbrang'] = $this->db->query('SELECT COUNT(id_barang) FROM barang_keluar')->result_array();
 		$data['jmlhbrangmsk'] = $this->db->query('SELECT COUNT(id_barang) FROM barang_masuk')->result_array();
 		$data['barang_keluar'] = $this->Admin_model->select_barang_keluar();
@@ -135,6 +137,12 @@ class Admin extends CI_Controller {
                 }
 			
 			
+	}
+	Public function hapus_pesanan($id)
+	{
+		$this->db->delete('tbl_pesanan', ['id' => $id]);
+		$this->session->set_flashdata('flash', 'Data Berhasil Dihapus');
+		redirect('admin/data_barang');
 	}
 	Public function input_admin() 
 	{
@@ -310,30 +318,110 @@ class Admin extends CI_Controller {
 					$this->load->view('admin/thamplate/footer');
 		}
 	}
+	Public function keranjang_barang($id)
+	{	
+		$barang = $this->db->get_where('barang_masuk', ['id_barang'=> $id])->row();
+		$barang2 = $this->db->get_where('barang', ['id_barang'=> $id])->row();	
+		$data = array(
+        'id'      => $barang->id_barang,
+        'qty'     => 1,
+        'kode'    => $barang2->kode_barang,
+        'stok' 		=>$barang->stok,
+        'price'   => $barang->harga,
+        'name'    => $barang2->nama_barang,
+);
+
+
+		$this->cart->insert($data);
+redirect('admin/barang_keluar');
+
+	}
+	Public function pembayaran()
+	{
+		$this->form_validation->set_rules('nama_penerima', 'Nama Penerima', 'required');
+		$this->form_validation->set_rules('harga', 'Harga Beli', 'required');
+		$this->form_validation->set_rules('kode', 'Kode Barang', 'required');
+		$this->form_validation->set_rules('jmlbarang', 'Harga Beli', 'required');
+		if ($this->form_validation->run() == TRUE) {
+			$keranjang = $this->cart->contents();
+			$barang = "";
+			foreach ($keranjang as $nama) {
+				$data = [
+					'id_barang' => $nama['id'],
+					'stok_terjual' => $nama['qty'],
+					'harga_terjual' => $nama['subtotal']
+
+				];
+				$this->db->insert('barang_keluar', $data);
+			}
+			$data = [
+				'nama_penerima' => $this->input->post('nama_penerima', TRUE),
+				'stok_terjual' => $this->input->post('jmlbarang', TRUE),
+				'harga_terjual' => $this->input->post('harga', TRUE),
+				'kode_transaksi' => $this->input->post('kode', TRUE)
+			];
+			$this->db->insert('tbl_pesanan', $data);
+			$this->cart->destroy();
+			$this->session->set_flashdata('flash', 'Pembayaran Berhasil');
+			redirect('admin/barang_keluar');
+		}
+		$data['title'] = 'Input Kasir';
+					$data['csrf'] = array(
+			        'name' => $this->security->get_csrf_token_name(),
+			        'hash' => $this->security->get_csrf_hash()
+				);
+					function acak($panjang)
+						{
+						    $karakter= '123456789389472834729347293234293472323847293742323426234623482342863428364';
+						    $string = '';
+						    for ($i = 0; $i < $panjang; $i++) {
+						  $pos = rand(0, strlen($karakter)-1);
+						  $string .= $karakter{$pos};
+						    }
+						    return $string;
+						}
+						//cara memanggilnya
+						$data['kode'] = acak(5);
+    	$data['title'] = 'Data Barang';
+		$this->load->view('admin/thamplate/header');
+	$this->load->view('admin/thamplate/sidebar');
+	$this->load->view('admin/thamplate/navbar', $data);
+	$this->load->view('admin/pages/pembayaran', $data);
+	$this->load->view('admin/thamplate/footer');
+	}
+	Public function hapus_keranjang()
+	{
+		$this->cart->destroy();
+		redirect('admin/barang_keluar');
+	}
+	Public function detail_keranjang()
+	{
+
+    	$data['title'] = 'Data Barang';
+    	$data['detail_keranjang'] = $this->cart->contents();
+		$this->load->view('admin/thamplate/header');
+		$this->load->view('admin/thamplate/sidebar');
+		$this->load->view('admin/thamplate/navbar', $data);
+		$this->load->view('admin/pages/detail_keranjang.php', $data);
+		$this->load->view('admin/thamplate/footer');	
+	}
 	public function barang_keluar()
 	{
 
-    	$this->form_validation->set_rules('stok', 'Stok Barang', 'required');
-    	$this->form_validation->set_rules('harga', 'Harga Barang', 'required');
-    	$this->form_validation->set_rules('nama_penerima',  'Nama Penerima', 'required');
-		if ($this->form_validation->run() == TRUE) {
-		$this->Admin_model->barang_keluar();
-		$this->session->set_flashdata('flash', 'Data Berhasil Di Tambahkan');
-		redirect('admin/barang_keluar');
-
-		}else {
-			$data['csrf'] = array(
-			        'name' => $this->security->get_csrf_token_name(),
-			        'hash' => $this->security->get_csrf_hash()
-						);
-					$data['title'] = 'Input Barang Keluar';
-					$data['data'] = $this->db->get('barang')->result_array();
-					$this->load->view('admin/thamplate/header');
-					$this->load->view('admin/thamplate/sidebar');
-					$this->load->view('admin/thamplate/navbar', $data);
-					$this->load->view('admin/input/barang_keluar', $data);
-					$this->load->view('admin/thamplate/footer');
-		}
+    $data['title'] = 'Data Barang';
+		$data['count'] = $this->Admin_model->count_barang();
+		$data['count2'] = $this->db->query('SELECT SUM(harga) FROM barang_masuk ')->result_array();
+		$data['barang'] = $this->Admin_model->select_barang();
+		$data['count_stok'] = $this->db->query("SELECT SUM(stok_terjual) FROM barang_keluar")->result_array();
+		$data['count_harga'] = $this->db->query("SELECT SUM(harga_terjual) FROM barang_keluar")->result_array();
+		$data['jmlhbrang'] = $this->db->query('SELECT COUNT(id_barang) FROM barang_keluar')->result_array();
+		$data['jmlhbrangmsk'] = $this->db->query('SELECT COUNT(id_barang) FROM barang_masuk')->result_array();
+		$data['barang_keluar'] = $this->Admin_model->select_barang_keluar();
+		$this->load->view('admin/thamplate/header');
+		$this->load->view('admin/thamplate/sidebar');
+		$this->load->view('admin/thamplate/navbar', $data);
+		$this->load->view('admin/input/barang_keluar.php', $data);
+		$this->load->view('admin/thamplate/footer');	
 		
 	}
 	public function update_admin($id)
@@ -359,6 +447,33 @@ class Admin extends CI_Controller {
 					$this->load->view('admin/input/update_admin', $data);
 					$this->load->view('admin/thamplate/footer');
 		}
+	}
+	Public function data_keluar()
+	{
+		$this->form_validation->set_rules('stok_barang', 'Stok Barang', 'required');
+		$this->form_validation->set_rules('harga', 'Harga Barang', 'required');
+		if ($this->form_validation->run() == TRUE) {
+			$data = [
+				'id_barang' => $this->input->post('id_barang'),
+				'stok_terjual' => $this->input->post('stok_barang'),
+				'harga_terjual' => $this->input->post('harga')
+			];
+			$this->db->insert('barang_keluar', $data);
+			$this->session->set_flashdata('flash', 'Data Berhasil Ditambah');
+			redirect('admin/data_keluar');
+		}
+		$data['data'] = $this->db->get('barang')->result_array();
+
+		$data['csrf'] = array(
+			        'name' => $this->security->get_csrf_token_name(),
+			        'hash' => $this->security->get_csrf_hash()
+				);
+					$data['title'] = 'Input Barang Keluar';
+					$this->load->view('admin/thamplate/header');
+					$this->load->view('admin/thamplate/sidebar');
+					$this->load->view('admin/thamplate/navbar', $data);
+					$this->load->view('admin/input/data_keluar', $data);
+					$this->load->view('admin/thamplate/footer');
 	}
 	Public function hapus_admin($id)
 	{
@@ -636,7 +751,9 @@ class Admin extends CI_Controller {
 		$data['barang'] = $this->Admin_model->select_barang();
 		$data['barang_masuk'] = $this->db->query('SELECT COUNT(id_barang) FROM barang_keluar')->result_array();
 		$data['count_stok'] = $this->db->query("SELECT SUM(stok_terjual) FROM barang_keluar")->result_array();
+		$data['count_stok2'] = $this->db->query("SELECT SUM(stok_terjual) FROM tbl_pesanan")->result_array();
 		$data['count_harga'] = $this->db->query("SELECT SUM(harga_terjual) FROM barang_keluar")->result_array();
+		$data['count_harga2'] = $this->db->query("SELECT SUM(harga_terjual) FROM tbl_pesanan")->result_array();
 		$data['jmlhbarang']  = $this->db->query('SELECT COUNT(id_barang) FROM barang_keluar')->result_array();
 		$data['barang_keluar'] = $this->Admin_model->select_barang_keluar();
 		$this->load->view('admin/thamplate/header');
@@ -649,13 +766,10 @@ class Admin extends CI_Controller {
 	{					
 						$this->form_validation->set_rules('stok', 'Stok Barang', 'required');
 				    	$this->form_validation->set_rules('harga', 'Harga Barang', 'required');
-				    	$this->form_validation->set_rules('nama_penerima',  'Nama Penerima', 'required');
 				    	if ($this->form_validation->run() == TRUE) {
 				    		$data = [ 
-				    			'id_barang' => $this->input->post('id_barang'),
-				    			'nama_penerima' => $this->input->post('nama_penerima', TRUE),
 				    			'stok_terjual' => $this->input->post('stok', TRUE),
-				    			'harga_terjual' => $this->input->post('stok', TRUE)
+				    			'harga_terjual' => $this->input->post('harga', TRUE)
 				    		];
 				    		$this->db->set($data);
 				    		$this->db->where('id_barang_keluar', $id);
@@ -674,6 +788,39 @@ class Admin extends CI_Controller {
 					$this->load->view('admin/thamplate/sidebar');
 					$this->load->view('admin/thamplate/navbar', $data);
 					$this->load->view('admin/input/update_barang_keluar', $data);
+					$this->load->view('admin/thamplate/footer');
+	}
+	public function update_pesanan($id)
+	{
+
+		$this->form_validation->set_rules('nama_penerima', 'Nama Penerima', 'required');
+		$this->form_validation->set_rules('kode', 'Kode Transaksi', 'required');
+		$this->form_validation->set_rules('stok', 'Stok Beli', 'required');
+		$this->form_validation->set_rules('harga', 'Harga Beli', 'required');
+		if ($this->form_validation->run() == TRUE) {
+			$data = [
+				'nama_penerima' => $this->input->post('nama_penerima', TRUE),
+				'kode_transaksi' =>  $this->input->post('kode', TRUE),
+				'stok_terjual' =>  $this->input->post('stok', TRUE),
+				'harga_terjual' =>  $this->input->post('harga', TRUE)
+			];
+			$this->db->set($data);
+			$this->db->where('id', $id);
+			$this->db->update('tbl_pesanan');
+			$this->session->set_flashdata('flash', 'Data Berhasil Diubah');
+			redirect('admin/data_barang');
+		}
+			$data['csrf'] = array(
+			        'name' => $this->security->get_csrf_token_name(),
+			        'hash' => $this->security->get_csrf_hash()
+						);
+					$data['detil'] = $this->db->get_where('tbl_pesanan', ['id' => $id])->result_array();
+					$data['title'] = 'Update Barang Keluar';
+					$data['data'] = $this->db->get('barang')->result_array();
+					$this->load->view('admin/thamplate/header');
+					$this->load->view('admin/thamplate/sidebar');
+					$this->load->view('admin/thamplate/navbar', $data);
+					$this->load->view('admin/input/update_pesanan', $data);
 					$this->load->view('admin/thamplate/footer');
 	}
 
@@ -695,6 +842,7 @@ class Admin extends CI_Controller {
 		$barang_keluar = $this->Admin_model->select_barang_keluar();
 		$jmlhbrangkeluar = $this->db->query('SELECT COUNT(id_barang) FROM barang_keluar')->result_array();
 		$jmlhbrangmsk =  $this->db->query('SELECT COUNT(id_barang) FROM barang_masuk')->result_array();
+		$tbl_pesanan = $this->db->get('tbl_pesanan')->result_array();
 		$html = "<!DOCTYPE html>
 				<html>
 				<head>
@@ -719,6 +867,8 @@ class Admin extends CI_Controller {
 				$html .= "<h2  style='margin-top: -200px;'><b>Laporan Barang</b></h2>";
 
 				$html .= "<hr>";
+
+	  	$html .= "<h2>DAFTAR BARANG MASUK </h2>";
 		$html .= "<table border'1' cellpadding='10' cellspacing='0' style='width:100%; '>";
 		$html .= "<thead>
 	  		<tr>
@@ -736,7 +886,7 @@ class Admin extends CI_Controller {
 			<th> Jumlah Barang Masuk : ".$jmlhbrangmsk[0]['COUNT(id_barang)']."</th>";
 		$html .= "<th></th>
 			<td ><b>Jumlah Stok : ".$count[0]['SUM(stok)']."</b></td>";
-            $html .=   "<td ><b>Harga Masuk : Rp. ".$count2[0]['SUM(harga)']."</b></td>";
+            $html .=   "<td ><b>Harga Masuk : Rp. ".number_format($count2[0]['SUM(harga)'],0,',','.')."</b></td>";
 		$html .= "</tr>";	  
 		$html .= "</tfoot>";	  	
 			
@@ -748,7 +898,7 @@ class Admin extends CI_Controller {
 	  	 	$html .= "<td>".$user['nama_barang']."</td>";
 	  	 	$html .= "<td>".$user['kode_barang']."</td>";
 	  	 	$html .= "<td>".$user['stok']."</td>";
-	  	 	$html .= "<td> Rp.".$user['harga']."</td>";
+	  	 	$html .= "<td> Rp.".number_format($user['harga'],0,',','.')."</td>";
 
 
 	  	 	$html .= "</tr>";
@@ -756,11 +906,11 @@ class Admin extends CI_Controller {
 	  	 }
 	  	$html .= "</tbody>";
 	  	$html .= "</table>";
+	  	$html .= "<h2>DAFTAR BARANG KELUAR</h2>";
 	  	$html .= "<table border'1' cellpadding='10' cellspacing='0' style='width:100%; '>";
 		$html .= "<thead>
 	  		<tr>
 	  		<th>No</th>
-            <th>Nama Penerima</th>
             <th>Nama Barang</th>
              <th>Kode Barang</th>
              <th>Stok Keluar</th>
@@ -770,11 +920,10 @@ class Admin extends CI_Controller {
 	  	$html .= "<tfoot>";
 	  	$html .= "<tr>";	  	
 		$html .= "
-			<th></th>
 			<th></th>";
 		$html .=  "<td ><b>Jumlah Barang Keluar : ".$jmlhbrangkeluar[0]['COUNT(id_barang)']."</b></td>";
           $html .=   "<th><td ><b>Jumlah Stok Keluar : ".$count_stok[0]['SUM(stok_terjual)']."</b></td>";
-            $html .=   "<td ><b>Harga Keluar : Rp. ".$count_harga[0]['SUM(harga_terjual)']."</b></td>";
+            $html .=   "<td ><b>Harga Keluar : Rp. ".number_format($count_harga[0]['SUM(harga_terjual)'],0,',','.')."</b></td>";
 		$html .= "</tr>";	  
 		$html .= "</tfoot>";	  	
 			
@@ -783,11 +932,10 @@ class Admin extends CI_Controller {
 	  	 foreach($barang_keluar as $user2) {
 	  	 	$html .= "<tr>";
 	  	 	$html .= "<td>".$no."</td>";
-	  	 	$html .= "<td>".$user2['nama_penerima']."</td>";
 	  	 	$html .= "<td>".$user2['nama_barang']."</td>";
 	  	 	$html .= "<td>".$user2['kode_barang']."</td>";
 	  	 	$html .= "<td>".$user2['stok_terjual']."</td>";
-	  	 	$html .= "<td> Rp.".$user2['harga_terjual']."</td>";
+	  	 	$html .= "<td> Rp.".number_format($user2['harga_terjual'],0,',','.')."</td>";
 
 
 	  	 	$html .= "</tr>";
@@ -796,6 +944,45 @@ class Admin extends CI_Controller {
 	  	$html .= "</tbody>";
 	  	$html .= "</table>";
 
+	  	$html .= "<h2>DAFTAR PESANAN</h2>";
+	  	$html .= "<table border'1' cellpadding='10' cellspacing='0' style='width:100%; '>";
+		$html .= "<thead>
+	  		<tr>
+	  		<th>No</th>
+            <th>Nama Barang</th>
+             <th>Kode Transaksi</th>
+             <th>Stok Keluar</th>
+             <th>Harga Barang Keluar</th>
+	  		</tr>
+	  	</thead>";
+	  	$html .= "<tfoot>";
+	  	$html .= "<tr>";	  	
+		$html .= "
+			<th></th>";
+		$html .=  "<td ><b>Jumlah Barang Keluar : ".$jmlhbrangkeluar[0]['COUNT(id_barang)']."</b></td>";
+          $html .=   "<th><td ><b>Jumlah Stok Keluar : ".$count_stok[0]['SUM(stok_terjual)']."</b></td>";
+            $html .=   "<td ><b>Harga Keluar : Rp. ".number_format($count_harga[0]['SUM(harga_terjual)'],0,',','.')."</b></td>";
+		$html .= "</tr>";	  
+		$html .= "</tfoot>";	  	
+			
+	  	$html .= "<tbody>";
+	  	$no = 1;
+	  	 foreach($tbl_pesanan as $asa) {
+	  	 	$html .= "<tr>";
+	  	 	$html .= "<td>".$no."</td>";
+	  	 	$html .= "<td>".$asa['nama_penerima']."</td>";
+	  	 	$html .= "<td>".$asa['kode_transaksi']."</td>";
+	  	 	$html .= "<td>".$asa['stok_terjual']."</td>";
+	  	 	$html .= "<td> Rp.".number_format($asa['harga_terjual'],0,',','.')."</td>";
+
+
+	  	 	$html .= "</tr>";
+	  	 	$no++;
+	  	 }
+	  	$html .= "</tbody>";
+	  	$html .= "</table>";
+
+	  	$html .= "<h2>TOTAL SELISIH BARANG</h2>";
 	  	$html .= "<table border'1' cellpadding='10' cellspacing='0' style='width:100%;'  style='margin-top: 20px'>";
 		$html .= "<thead>
 	  		<tr>
@@ -814,7 +1001,7 @@ class Admin extends CI_Controller {
 			<th></th>
 
             <td colspan='2'><b>Selisih Stok : ".$jm."</b></td>";
-            $html .=   "<td colspan='2'><b>Selisih Harga : Rp. ".$sf."</b></td>";
+            $html .=   "<td colspan='2'><b>Selisih Harga : Rp. ".number_format($sf,0,',','.')."</b></td>";
 		$html .= "</tr>";	  
 		$html .= "</tfoot>";	  	
 			
@@ -824,8 +1011,8 @@ class Admin extends CI_Controller {
 	  	 	$html .= "<td>".$no."</td>";
 	  	 	$html .= "<td>".$count[0]['SUM(stok)']."</td>";
 	  	 	$html .= "<td>".$count_stok[0]['SUM(stok_terjual)']."</td>";
-	  	 	$html .= "<td> Rp.".$count2[0]['SUM(harga)']."</td>";
-	  	 	$html .= "<td> Rp.".$count_harga[0]['SUM(harga_terjual)']."</td>";
+	  	 	$html .= "<td> Rp.".number_format($count2[0]['SUM(harga)'],0,',','.')."</td>";
+	  	 	$html .= "<td> Rp.".number_format($count_harga[0]['SUM(harga_terjual)'],0,',','.')."</td>";
 
 
 	  	 	$html .= "</tr>";

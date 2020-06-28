@@ -20,6 +20,7 @@
                 <li><a href="<?= 
                 base_url('petugas/input_barang') ?>">Input Barang</a></li>
                 <li><a href="<?= base_url('petugas/input_barangmasuk') ?>">Input Barang Masuk</a></li>
+                <li><a href="<?= base_url('petugas/input_barangkeluar') ?>">Input Barang Keluar</a></li>
               </ul>
             </li>
             <li class="dropdown">

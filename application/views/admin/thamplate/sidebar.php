@@ -45,7 +45,11 @@
                                 </li>
 
                                 <li>
-                                    <a href="<?= base_url('admin/barang_keluar') ?>">Input barang Keluar</a>
+                                    <a href="<?= base_url('admin/data_keluar') ?>">Input barang Keluar</a>
+                                </li>
+
+                                <li>
+                                    <a href="<?= base_url('admin/barang_keluar') ?>">Input Pesanan</a>
                                 </li>
                             </ul>
                         </div>

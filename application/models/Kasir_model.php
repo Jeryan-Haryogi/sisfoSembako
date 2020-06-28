@@ -19,7 +19,7 @@ class Kasir_model extends CI_Model {
 		$this->db->select(
 			'*');
 		$this->db->from('barang');
-		$this->db->join('barang_keluar', 'barang.id_barang = barang_keluar.id_barang');
+		$this->db->join('barang_masuk', 'barang.id_barang = barang_masuk.id_barang');
 		
 		$query = $this->db->get()->result_array();
 		return $query;

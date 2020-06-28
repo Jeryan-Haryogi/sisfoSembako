@@ -71,8 +71,6 @@ class Petugas_model extends CI_model {
 	public function update_barang_keluar($id)
 	{
 		$data = [
-			'id_barang' => $this->input->post('nama_barang', TRUE),
-			'nama_penerima' => $this->input->post('nama_penerima', TRUE),
 			'stok_terjual' => $this->input->post('stok_keluar', TRUE),
 			'harga_terjual' => $this->input->post('harga_keluar', TRUE)
 		];

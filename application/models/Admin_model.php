@@ -108,17 +108,16 @@ class Admin_model extends CI_Model {
 	}
 	Public function detail_barang_masuk($id)
 	{	
-		return $this->db->get_where('barang_masuk', ['id_barang' => $id]);
+		return $this->db->get_where('barang_masuk', ['id_brng_masuk' => $id])->result_array();
 	}
 	Public function update_barang2($id)
 	{
 		$data = [
-
 			'stok' => $this->input->post('stok_barang'),
 			'harga' => $this->input->post('harga')
 		];
 		$this->db->set($data);
-		$this->db->where('id_barang', $id);
+		$this->db->where('id_brng_masuk', $id);
 		$this->db->update('barang_masuk');
 
 	}

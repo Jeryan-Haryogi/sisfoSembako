@@ -55,19 +55,17 @@
                   <tr>
                     <th>No</th>
                      <th>Nama Penerima</th>
-                     <th>Nama Barang</th>
                      <th>Kode Barang</th>
-                      <th>Stok Keluar</th>
-                   <th>Harga Barang Keluar</th>          
+                      <th>Stok Beli</th>
+                   <th>Harga Barang Beli</th>          
                   </tr>
                   </thead>
                   <tbody>
-                  	<?php $no = 1; foreach ($barang_keluar as $key => $d): ?>
+                  	<?php $no = 1; foreach ($brana as $key => $d): ?>
                   <tr>
                     <td><?= $no ?></td>
                     <td><?= $d['nama_penerima'] ?></td>
-                    <td><?= $d['nama_barang'] ?></td>
-                    <td><?= $d['kode_barang'] ?></td>
+                    <td><?= $d['kode_transaksi'] ?></td>
                     <td><?= $d['stok_terjual'] ?></td>
                     <td>Rp. <?= $d['harga_terjual'] ?></td>
                   </tr>
@@ -78,13 +76,14 @@
                   <tr>
                     <th></th>
                     <th></th>
-                    <th colspan="2">Jumlah Barang: <?= $count[0]['COUNT(id_barang)'] ?></th>
-                    <th>Jumlah Stok Keluar : <?= $count2[0]['SUM(stok_terjual)'] ?> </th>
-                    <th>Total Harga Keluar : Rp. <?= $count3[0]['SUM(harga_terjual)'] ?> </th>
+                    <th></th>
+                    <th>Jumlah Stok Beli : <?= $count2[0]['SUM(stok_terjual)'] ?> </th>
+                    <th>Total Harga Beli : Rp. <?= number_format($count3[0]['SUM(harga_terjual)'],0,',','.') ?> </th>
                     <th></th>
                   </tr>
                   </tfoot>
                 </table>
+            
               </div>
               <!-- /.card-body -->
             </div>

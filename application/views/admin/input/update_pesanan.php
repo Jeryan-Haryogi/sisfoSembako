@@ -18,21 +18,40 @@
 							 	<div class="row">
 							 		<div class="col-sm-6">
 							 			 <div class="form-group">
-							    <label for="">Stok Barang Keluar</label>
-							    <input type="text" class="form-control" value="<?= $as['stok_terjual']  ?>" name="stok">
+							    <label for="">Nama Penerima</label>
+							    <input type="text" class="form-control" value="<?= $as['nama_penerima']  ?>" name="nama_penerima">
 							    <?php if (validation_errors()): ?>
-							    	<small class="text-danger"><?= form_error('stok') ?></small>
+							    	<small class="text-danger"><?= form_error('nama_penerima') ?></small>
 							    <?php endif ?>
 							  </div>
 							 		</div>
 							 		<div class="col-sm-6">
 							 			 <div class="form-group">
-							    <label >Harga Jual Barang</label>
+							    <label >Kode Transaksi</label>
+							    <input type="text" class="form-control" value="<?= $as['kode_transaksi'] ?>"  name="kode">
+							     <?php if (validation_errors()): ?>
+							    	<small class="text-danger"><?= form_error('kode') ?></small>
+							    <?php endif ?>
+							  </div>
+							</div>
+							<div class="col-sm-6">
+							 			 <div class="form-group">
+							    <label >Stok Beli</label>
+							    <input type="text" class="form-control" value="<?= $as['stok_terjual'] ?>"  name="stok">
+							     <?php if (validation_errors()): ?>
+							    	<small class="text-danger"><?= form_error('stok') ?></small>
+							    <?php endif ?>
+							  </div>
+							</div>
+							<div class="col-sm-6">
+							 			 <div class="form-group">
+							    <label >Harga Beli</label>
 							    <input type="text" class="form-control" value="<?= $as['harga_terjual'] ?>"  name="harga">
 							     <?php if (validation_errors()): ?>
 							    	<small class="text-danger"><?= form_error('harga') ?></small>
 							    <?php endif ?>
 							  </div>
+							</div>
 							  
 							  
 							 	</div>

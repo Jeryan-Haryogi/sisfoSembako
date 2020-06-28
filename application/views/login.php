@@ -16,7 +16,7 @@
   <div class="card-body">
     <div class="row">
       <div class="col-sm-6">
-          <img src="https://cdn.dribbble.com/users/2416268/screenshots/6764317/ux-writingartboard_2-100.jpg" width="100%">
+          <img src="<?= base_url('assets/logo/') ?>logo.jpeg" width="80%">
         </div>
         <div class="col-sm-6">
           <h2><b>Welcome Back :)</b></h2>

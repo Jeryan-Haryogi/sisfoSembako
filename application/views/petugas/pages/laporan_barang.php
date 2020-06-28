@@ -22,7 +22,6 @@
                             <th>Nama Barang</th>
                             <th>Kode Barang</th>
                             <th>Stok Barang Masuk </th>
-                            <th>Harga Barang Masuk</th>
                          
                           </tr>
                         </thead>
@@ -35,21 +34,20 @@
                                                     </th>
                                                     <?php $asi = $count2[0]['SUM(harga)'] - $count_harga[0]['SUM(harga_terjual)'];
                                                      ?>
-                                                   <th>Jumlah Harga Masuk : Rp. <?= $count2[0]['SUM(harga)'] ?> </th>
+                                                  
                                                 </tr>
                         </tfoot>
                         <tbody>
                           <?php  $no = 1; ?>
-                          <?php foreach ($barang as $key => $d): ?>
+                          <?php foreach ($barang as $key => $dz): ?>
                             
                           <tr>
                             <td>
                               <?= $no ?>
                             </td>
-                            <td><?= $d['nama_barang']?></td>
-                            <td><?= $d['kode_barang']?></td>
-                            <td><?= $d['stok']?></td>
-                            <td>Rp. <?= $d['harga']?></td>
+                            <td><?= $dz['nama_barang']?></td>
+                            <td><?= $dz['kode_barang']?></td>
+                            <td><?= $dz['stok']?></td>
                           </tr>
                           <?php $no++ ?>
                           <?php endforeach ?>
@@ -72,7 +70,6 @@
                         <thead>
                           <tr>
                             <th>No</th>
-                            <th>Nama Penerima</th>
                             <th>Nama Barang</th>
                             <th>Kode Barang</th>
                             <th>Stok Barang Keluar </th>
@@ -81,11 +78,10 @@
                         </thead>
                         <tfoot>
                           <th></th>
-                          <th></th>
                           <th>Jumlah Barang Keluar : <?= $jmlhbrangkeluar[0]['COUNT(id_barang)'] ?></th>
                           <th></th>
                           <td><b>Jumlah   Stok Keluar: <?= $count_stok[0]['SUM(stok_terjual)'] ?></b></td>
-                          <td><b>Jumlah Harga Keluar : Rp. <?= $count_harga[0]['SUM(harga_terjual)'] ?></b></td>
+                          <td><b>Jumlah Harga Keluar : Rp. <?= number_format($count_harga[0]['SUM(harga_terjual)'],0,',','.')  ?></b></td>
                         </tfoot>
                         <tbody>
                           <?php $no1 = 1; ?>
@@ -94,11 +90,10 @@
                             <td>
                               <?= $no1 ?>
                             </td>
-                            <td><?= $v['nama_penerima']?></td>
                             <td><?= $v['nama_barang']?></td>
                             <td><?= $v['kode_barang']?></td>
                             <td><?= $v['stok_terjual']?></td>
-                            <td>Rp. <?= $v['harga_terjual']?></td>
+                            <td>Rp. <?= number_format($v['harga_terjual'],0,',','.') ?></td>
                           </tr>
                           <?php $no1++ ?>
                           <?php endforeach ?>

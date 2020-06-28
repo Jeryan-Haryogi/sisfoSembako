@@ -11,34 +11,15 @@
 
                       <h3><?= $title ?></h3>
                     <div class="row ">
+                          
+                  
+                                 
                       <div class="col-sm-6">
-                        <?php foreach ($barang_keluar as $key => $d): ?>
+                         <?php foreach ($barang_keluar as $key => $d): ?>
                           
                         <form action="" method="POST">
                          <input type="hidden" class="form-control" name="<?=$csrf['name'];?>" value="<?=$csrf['hash']?>">
-            <div class="form-group">
-              <label>Nama Barang</label>
-               <select class="form-control" name="nama_barang" >
-                <?php foreach ($barang_masuk as $key => $v): ?>
-                <option value="<?= $v['id_barang'] ?>"><?= $v['nama_barang'] ?></option>
-                <?php endforeach ?>
-              </select>
-              <?php if (validation_errors()): ?>
-                <small class="text-danger"><?= form_error('nama_barang') ?></small>
-              <?php endif ?>
-            </div>
-                      </div>
-                                 <div class="col-sm-6">
-            <div class="form-group">
 
-              <label>Nama Penerima</label>
-              <input type="text" class="form-control" value="<?= $d['nama_penerima'] ?>" name="nama_penerima">
-              <?php if (validation_errors()): ?>
-                <small class="text-danger"><?= form_error('nama_penerima') ?></small>
-              <?php endif ?>
-            </div>
-                      </div>
-                      <div class="col-sm-6">
             <div class="form-group">
 
               <label>Stok Barang Keluar</label>

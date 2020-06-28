@@ -68,45 +68,56 @@
                                 </div>
 
                                     <h4 class="card-title"><?= $title ?></h4>
-                                    <h3> Jumlah Barang : <a href="<?= base_url('admin/detail_keranjang') ?>"><?= $this->cart->total_items() ?></a> </h3>
                                     <div class="toolbar">
-                                        <!--        Here you can write extra buttons/actions for the toolbar              -->
+                                          <div class="material-datatables">
+                                         <div class="text-right">
+                                        <a href="<?= base_url('admin/hapus_keranjang') ?>" class="btn btn-danger">Hapus Keranjang</a>
+                                        <a href="<?= base_url('admin/pembayaran') ?>" class="btn btn-primary">pembayaran</a>
+                                         <a href="<?= base_url('admin/barang_keluar') ?>" class="btn btn-success">Lanjutkan Belanja</a>
+                                        </div>
+                                </div>
                                     </div>
-                                    <div class="material-datatables">
+
                                         <table id="datatables" class="table table-striped table-no-bordered table-hover" cellspacing="0" width="100%" style="width:100%">
                                             <thead>
                                                 <tr>
                                                     <th>No</th>
                                                     <th>Nama Barang</th>
                                                     <th>Kode Barang</th>
+                                                    <th>Jumlah Barang</th>
                                                     <th>Harga Barang</th>
+                                                    <th>Sub Total</th>
                                                   
-                                                    <th class="disabled-sorting text-right">Aksi</th>
+                                                   
                                                 </tr>
                                             </thead>
+                                            <tfoot>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th>Rp. <?=$this->cart->format_number($this->cart->total()); ?></th>
+                                            </tfoot>
                                              
                                             <tbody>
                                               <?php $no = 1; ?>
-                                              <?php foreach ($barang as $d): ?>
+                                              <?php foreach ($this->cart->contents() as $d): ?>
                                                 
                                                 <tr>
                                                     <td><?= $no ?></td>
-                                                    <td><?= $d['nama_barang'] ?></td>
-                                                    <td><?= $d['kode_barang'] ?></td>
-                                                    <td>Rp. <?= $d['harga'] ?></td>
-                                                   
-                                                    <td class="text-right">
-                                                      <a href="<?= base_url('admin/keranjang_barang/') ?><?= $d['id_barang'] ?>" class="btn btn-primary ">Pesan Barang</a>
-
-                                                      
-                                                    </td>
+                                                    <td><?= $d['name'] ?></td>
+                                                    <td><?= $d['kode'] ?></td>
+                                                    <td><?= $d['qty'] ?></td>
+                                                    <td>Rp. <?= $this->cart->format_number($d['price'],0,',','.'); ?></td>
+                                                     <td>Rp. <?= $this->cart->format_number($d['subtotal'],0,',','.'); ?></td>
                                                 </tr>
                                                 <?php $no++ ?>
                                               <?php endforeach ?>
                                             </tbody>
                                         </table>
                                     </div>
-                                </div>
+                                   
                                 <!-- end content-->
                             </div>
                             <!--  end card  -->

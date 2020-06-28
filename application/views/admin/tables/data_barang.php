@@ -68,7 +68,7 @@
                                     </div>
                                 </div>
 
-                                    <h4 class="card-title"><?= $title ?></h4>
+                                    <h4 class="card-title">Data Barang Masuk</h4>
                                     <div class="toolbar">
                                         <!--        Here you can write extra buttons/actions for the toolbar              -->
                                     </div>
@@ -91,7 +91,7 @@
                                                     <th>Jumlah Barang Masuk : <?= $jmlhbrangmsk[0]['COUNT(id_barang)'] ?></th>
                                                     <th></th>
                                                     <th>Jumlah Stok: <?= $count[0]['SUM(stok)'] ?></th>
-                                                    <th>Jumlah Harga Masuk : Rp. <?= $count2[0]['SUM(harga)'] ?> </th>
+                                                    <th>Jumlah Harga Masuk : Rp. <?= number_format($count2[0]['SUM(harga)'],0,',','.') ?> </th>
                                                     <th class="text-right">Actions</th>
                                                 </tr>
                                             </tfoot>
@@ -104,23 +104,23 @@
                                                     <td><?= $d['nama_barang'] ?></td>
                                                     <td><?= $d['kode_barang'] ?></td>
                                                     <td><?= $d['stok'] ?></td>
-                                                    <td>Rp. <?= $d['harga'] ?></td>
+                                                    <td>Rp. <?= number_format($d['harga'],0,',','.') ?></td>
                                                    
                                                     <td class="text-right">
-                                                      <a href="<?= base_url('admin/update_barang/') ?><?= $d['id_barang'] ?>" class="btn btn-simple btn-warning btn-icon " data-toggle="tooltip" title='Update Data'><i class="material-icons">dvr</i></a>
+                                                      <a href="<?= base_url('admin/update_barang/') ?><?= $d['id_brng_masuk'] ?>" class="btn btn-simple btn-warning btn-icon " data-toggle="tooltip" title='Update Data'><i class="material-icons">dvr</i></a>
 
-                                                        <a href="<?= base_url('admin/hapus_barang/') ?><?= $d['id_barang'] ?>" class="btn btn-simple btn-danger btn-icon " data-toggle="tooltip" title='Hapus Data' data-toggle="modal" data-target="#delete"><i class="material-icons">close</i></a>
+                                                        <a href="<?= base_url('admin/hapus_barang/') ?><?= $d['id_brng_masuk'] ?>" class="btn btn-simple btn-danger btn-icon " data-toggle="tooltip" title='Hapus Data' data-toggle="modal" data-target="#delete"><i class="material-icons">close</i></a>
                                                     </td>
                                                 </tr>
                                                 <?php $no++ ?>
                                               <?php endforeach ?>
                                             </tbody>
                                         </table>
-                                        <table id="datatables" class="table table-striped table-no-bordered table-hover" cellspacing="0" width="100%" style="width:100%">
+                                        <h4>Data Barang Keluar</h4>
+                                                <table id="datatables" class="table table-striped table-no-bordered table-hover" cellspacing="0" width="100%" style="width:100%">
                                             <thead>
                                                 <tr>
                                                     <th>No</th>
-                                                    <th>Nama Penerima</th>
                                                     <th>Nama Barang</th>
                                                     <th>Kode Barang</th>
                                                     <th>Stok Keluar</th>
@@ -132,30 +132,75 @@
                                              <tfoot>
                                                 <tr>
                                                     <th></th>
+                                                    <th>Jumlah Barang Keluar : <?= $jmlhbrang[0]['COUNT(id_barang)'] ?></th>
                                                     <th></th>
-                                                    <th>Jumlah Barang : <?= $jmlhbrang[0]['COUNT(id_barang)']  ?></th>
-                                                    <th></th>
-                                                    <th>Jumlah Stok Keluar : <?= $count_stok[0]['SUM(stok_terjual)'] ?></th>
-                                                    <th>Jumlah Harga Keluar : Rp. <?= $count_harga[0]['SUM(harga_terjual)'] ?> </th>
+                                                    <th>Jumlah Stok: <?= $count_stok2[0]['SUM(stok_terjual)'] ?></th>
+                                                    <th>Jumlah Harga Masuk : Rp. <?= number_format($count_harga2[0]['SUM(harga_terjual)'],0,',','.') ?> </th>
                                                     <th class="text-right">Actions</th>
                                                 </tr>
                                             </tfoot>
                                             <tbody>
                                               <?php $no = 1; ?>
-                                              <?php foreach ($barang_keluar as $ad): ?>
+                                              <?php foreach ($barang_keluar as $d): ?>
+                                                
+                                                <tr>
+                                                    <td><?= $no ?></td>
+                                                    <td><?= $d['nama_barang'] ?></td>
+                                                    <td><?= $d['kode_barang'] ?></td>
+                                                    <td><?= $d['stok_terjual'] ?></td>
+                                                    <td>Rp. <?= number_format($d['harga_terjual'],0,',','.') ?></td>
+                                                   
+                                                    <td class="text-right">
+                                                      <a href="<?= base_url('admin/update_barang_keluar/') ?><?= $d['id_barang_keluar'] ?>" class="btn btn-simple btn-warning btn-icon " data-toggle="tooltip" title='Update Data'><i class="material-icons">dvr</i></a>
+
+                                                        <a href="<?= base_url('admin/hapus_barang_keluar/') ?><?= $d['id_barang_keluar'] ?>" class="btn btn-simple btn-danger btn-icon " data-toggle="tooltip" title='Hapus Data' data-toggle="modal" data-target="#delete"><i class="material-icons">close</i></a>
+                                                    </td>
+                                                </tr>
+                                                <?php $no++ ?>
+                                              <?php endforeach ?>
+                                            </tbody>
+                                        </table>
+                                        <h4>Data Pesanan</h4>
+                                        <table id="datatables" class="table table-striped table-no-bordered table-hover" cellspacing="0" width="100%" style="width:100%">
+                                            <thead>
+                                                <tr>
+                                                    <th>No</th>
+                                                    <th>Nama Penerima</th>
+                                                    <th>Stok Dibeli</th>
+                                                    <th>Harga Barang Keluar</th>
+                                                    <th>Kode Transaksi</th>
+                                                    <th class="disabled-sorting text-right">Aksi</th>
+                                                </tr>
+                                            </thead>
+                                             <tfoot>
+                                                <tr>
+                                                    <th></th>
+                                                    <th></th>
+                                                    <th>Jumlah Stok Keluar : <?= $count_stok[0]['SUM(stok_terjual)'] ?></th>
+
+                                                    <th>Jumlah Harga Keluar : Rp. <?= number_format($count_harga[0]['SUM(harga_terjual)'],0,',','.') ?> </th>
+                                                    
+                                                    <th></th>
+                                                    <th class="text-right">Actions</th>
+
+                                                </tr>
+                                            </tfoot>
+                                            <tbody>
+                                              <?php $no = 1; ?>
+                                              <?php $brangas = $this->db->get('tbl_pesanan')->result_array(); ?>
+                                              <?php foreach ($brangas as $ad): ?>
                                                 
                                                 <tr>
                                                     <td><?= $no ?></td>
                                                     <td><?= $ad['nama_penerima'] ?></td>
-                                                    <td><?= $ad['nama_barang'] ?></td>
-                                                    <td><?= $ad['kode_barang'] ?></td>
                                                     <td><?= $ad['stok_terjual'] ?></td>
-                                                    <td>Rp. <?= $ad['harga_terjual'] ?></td>
+                                                    <td>Rp. <?= number_format($ad['harga_terjual'],0,',','.') ?></td>
+
+                                                    <td><?= $ad['kode_transaksi'] ?></td>
                                                    
                                                     <td class="text-right">
-                                                      <a href="<?= base_url('admin/update_barang_keluar/') ?><?= $ad['id_barang_keluar'] ?>" class="btn btn-simple btn-warning btn-icon " data-toggle="tooltip" title='Update Data'><i class="material-icons">dvr</i></a>
-
-                                                        <a href="<?= base_url('admin/hapus_barang_keluar/') ?><?= $ad['id_barang_keluar'] ?>" class="btn btn-simple btn-danger btn-icon " data-toggle="tooltip" title='Hapus Data' data-toggle="modal" data-target="#delete"><i class="material-icons">close</i></a>
+                                                         <a href="<?= base_url('admin/update_pesanan/') ?><?= $ad['id'] ?>" class="btn btn-simple btn-warning btn-icon " data-toggle="tooltip" title='Update Data'><i class="material-icons">dvr</i></a>
+                                                      <a href="<?= base_url('admin/hapus_pesanan/') ?><?= $ad['id'] ?>" class="btn btn-simple btn-danger btn-icon " data-toggle="tooltip" title='Hapus Data' data-toggle="modal" data-target="#delete"><i class="material-icons">close</i></a>
                                                     </td>
                                                 </tr>
                                                 <?php $no++ ?>
